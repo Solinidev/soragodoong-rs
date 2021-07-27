@@ -1,0 +1,14 @@
+[package]
+name = "soragodoong-rs"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8"
+serde = "1"
+toml = "0.5"
+elefren = { version = "0.22", features = ["toml"] }
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
