@@ -50,13 +50,13 @@ pub mod sora {
             std::io::stdout().flush().unwrap();
             std::io::stdin().read_line(&mut instance)
                 .expect("failed");
-            instance = String::from(instance.strip_suffix("\r\n").unwrap());
+            instance = String::from(instance.trim());
 
             print!("Input your access token : ");
             std::io::stdout().flush().unwrap();
             std::io::stdin().read_line(&mut token)
                 .expect("failed");
-            token = String::from(token.strip_suffix("\r\n").unwrap());
+            token = String::from(token.trim());
             
             let core = Mstdn {
                 instance: instance,
