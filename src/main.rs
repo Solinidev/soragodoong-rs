@@ -11,8 +11,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let core = sora::get_core().await;
 
     let data = Data {
-        base: core.instance.into(),
-        token: core.token.into(),
+        base: core.instance.clone().into(),
+        token: core.token.clone().into(),
         client_id: "".into(),
         client_secret: "".into(),
         redirect: "".into()
@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for event in client.streaming_user()? {
         match event {
             Event::Notification(ref notification) => {
-                if let Err(w) = sora::execute(notification.to_owned()).await {
+                if let Err(w) = sora::execute(notification.to_owned(), &core).await {
                     println!("Error : {:?}", w);
                 }
             },

@@ -8,6 +8,10 @@ pub mod sora {
 
     use serde::{Serialize, Deserialize};
 
+    use elefren::status_builder::Visibility;
+    use elefren::entities::notification::Notification;
+    use elefren::entities::notification::NotificationType;
+
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Mstdn {
         pub instance: String,
@@ -71,7 +75,7 @@ pub mod sora {
         }
     }
 
-    pub async fn execute(ref notification: elefren::entities::notification::Notification) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute(ref notification: Notification, core: &Mstdn) -> Result<(), Box<dyn std::error::Error>> {
         match notification.account.bot {
             Some(bot) => {
                 if bot == true {
@@ -80,11 +84,9 @@ pub mod sora {
             },
             None => { return Ok(()); }
         }
-        if notification.notification_type != elefren::entities::notification::NotificationType::Mention {
+        if notification.notification_type != NotificationType::Mention {
             return Ok(());
         }
-
-        let core = get_core().await;
 
         let s = notification.status.clone().unwrap();
 
@@ -93,8 +95,8 @@ pub mod sora {
 
         let mut visibility = s.visibility;
 
-        if visibility == elefren::status_builder::Visibility::Public {
-            visibility = elefren::status_builder::Visibility::Unlisted;
+        if visibility == Visibility::Public {
+            visibility = Visibility::Unlisted;
         }
 
         let status = elefren::status_builder::StatusBuilder::new()
@@ -104,8 +106,8 @@ pub mod sora {
             .build()?;
 
         reqwest::Client::new()
-            .post(format!("{}/api/v1/statuses", core.instance))
-            .bearer_auth(core.token)
+            .post(format!("{}/api/v1/statuses", core.instance.clone()))
+            .bearer_auth(core.token.clone())
             .form(&status)
             .send()
             .await?;
