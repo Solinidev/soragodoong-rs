@@ -1,5 +1,5 @@
 pub mod sora {
-    use std::{collections::HashMap, io::prelude::*};
+    use std::io::prelude::*;
 
     use rand::Rng;
 
@@ -18,22 +18,25 @@ pub mod sora {
         pub token: String
     }
 
-    async fn message_builder(reply_to: String) -> String {
-        let mut file = File::open("words.toml").await.unwrap();
-        let mut data = String::new();
+    // pub async fn get_words() -> Vec<&'static str> {
+    //     let mut file = File::open("words.toml").await.unwrap();
+    //     let mut data = String::new();
 
-        file.read_to_string(&mut data).await
-            .expect("failed to read words.toml");
+    //     file.read_to_string(&mut data).await
+    //         .expect("failed to read words.toml");
+        
+    //     let map: HashMap<String, Vec<&str>> = toml::from_str(data.as_str()).unwrap();
+    //     let m: Vec<&'static str> = map.get("words").unwrap();
+    //     m
+    // }
 
-        let words_map: HashMap<String, Vec<&str>> = toml::from_str(data.as_str()).unwrap();
-        let words_list = words_map.get("words").unwrap();
-
+    async fn message_builder(reply_to: String, words: &Vec<&str>) -> String {
         let mut rng = rand::thread_rng();
         
         format!(
             "@{} {}",
             reply_to,
-            words_list.get(rng.gen_range(0..words_list.len())).unwrap()
+            words.get(rng.gen_range(0..words.len())).unwrap()
         )
     }
 
@@ -75,7 +78,7 @@ pub mod sora {
         }
     }
 
-    pub async fn execute(ref notification: Notification, core: &Mstdn) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>) -> Result<(), Box<dyn std::error::Error>> {
         match notification.account.bot {
             Some(bot) => {
                 if bot == true {
@@ -91,7 +94,7 @@ pub mod sora {
         let s = notification.status.clone().unwrap();
 
         let reply_to = notification.account.acct.clone();
-        let message = message_builder(reply_to).await;
+        let message = message_builder(reply_to, words).await;
 
         let mut visibility = s.visibility;
 
