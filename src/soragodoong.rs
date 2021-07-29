@@ -3,6 +3,7 @@ pub mod sora {
 
     use rand::Rng;
 
+    use reqwest::Client;
     use tokio::fs::{self, File};
     use tokio::io::AsyncReadExt;
 
@@ -78,7 +79,7 @@ pub mod sora {
         }
     }
 
-    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>, http: Client) -> Result<(), Box<dyn std::error::Error>> {
         match notification.account.bot {
             Some(bot) => {
                 if bot == true {
@@ -108,7 +109,7 @@ pub mod sora {
             .visibility(visibility)
             .build()?;
 
-        reqwest::Client::new()
+        http
             .post(format!("{}/api/v1/statuses", core.instance.clone()))
             .bearer_auth(core.token.clone())
             .form(&status)

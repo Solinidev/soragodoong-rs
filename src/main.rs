@@ -32,11 +32,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     let client = Mastodon::from(data);
+    let http_client = reqwest::Client::new();
 
     for event in client.streaming_user()? {
         match event {
             Event::Notification(ref notification) => {
-                if let Err(w) = sora::execute(notification.to_owned(), &core, &words_list).await {
+                if let Err(w) = sora::execute(notification.to_owned(), &core, &words_list, http_client.clone()).await {
                     println!("Error : {:?}", w);
                 }
             },
