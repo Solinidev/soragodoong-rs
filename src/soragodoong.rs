@@ -79,7 +79,7 @@ pub mod sora {
         }
     }
 
-    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>, http: Client) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>, http: &Client) -> Result<(), Box<dyn std::error::Error>> {
         match notification.account.bot {
             Some(bot) => {
                 if bot == true {
