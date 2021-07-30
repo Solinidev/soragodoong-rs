@@ -88,6 +88,18 @@ pub mod sora {
             },
             None => { return Ok(()); }
         }
+
+        if notification.notification_type == NotificationType::Follow {
+            http.post(format!(
+                "{}/api/v1/accounts/{}/follow",
+                core.instance.clone(),
+                notification.account.id
+            ))
+            .bearer_auth(core.token.clone())
+            .send()
+            .await?;
+        }
+
         if notification.notification_type != NotificationType::Mention {
             return Ok(());
         }
@@ -109,8 +121,7 @@ pub mod sora {
             .visibility(visibility)
             .build()?;
 
-        http
-            .post(format!("{}/api/v1/statuses", core.instance.clone()))
+        http.post(format!("{}/api/v1/statuses", core.instance.clone()))
             .bearer_auth(core.token.clone())
             .form(&status)
             .send()
