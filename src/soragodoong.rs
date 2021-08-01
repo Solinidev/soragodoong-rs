@@ -11,7 +11,6 @@ pub mod sora {
 
     use elefren::status_builder::Visibility;
     use elefren::entities::notification::Notification;
-    use elefren::entities::notification::NotificationType;
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Mstdn {
@@ -79,7 +78,19 @@ pub mod sora {
         }
     }
 
-    pub async fn execute(ref notification: Notification, core: &Mstdn, words: &Vec<&str>, http: &Client) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn follow(ref notification: Notification, core: &Mstdn, http: &Client) -> Result<(), Box<dyn std::error::Error>> {
+        http.post(format!(
+            "{}/api/v1/accounts/{}/follow",
+            core.instance.clone(),
+            notification.account.id
+        ))
+        .bearer_auth(core.token.clone())
+        .send()
+        .await?;
+        Ok(())
+    }
+
+    pub async fn reply(ref notification: Notification, core: &Mstdn, words: &Vec<&str>, http: &Client) -> Result<(), Box<dyn std::error::Error>> {
         match notification.account.bot {
             Some(bot) => {
                 if bot == true {
@@ -87,21 +98,6 @@ pub mod sora {
                 }
             },
             None => { return Ok(()); }
-        }
-
-        if notification.notification_type == NotificationType::Follow {
-            http.post(format!(
-                "{}/api/v1/accounts/{}/follow",
-                core.instance.clone(),
-                notification.account.id
-            ))
-            .bearer_auth(core.token.clone())
-            .send()
-            .await?;
-        }
-
-        if notification.notification_type != NotificationType::Mention {
-            return Ok(());
         }
 
         let s = notification.status.clone().unwrap();

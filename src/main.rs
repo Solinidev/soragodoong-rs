@@ -1,6 +1,7 @@
 mod soragodoong;
 pub use crate::soragodoong::sora;
 
+use elefren::entities::notification::NotificationType;
 use elefren::prelude::*;
 use elefren::entities::event::Event;
 
@@ -37,9 +38,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for event in client.streaming_user()? {
         match event {
             Event::Notification(ref notification) => {
-                if let Err(w) = sora::execute(notification.to_owned(), &core, &words_list, &http_client).await {
-                    println!("Error : {:?}", w);
+                if notification.notification_type == NotificationType::Mention
+                {
+                    sora::reply(notification.to_owned(), &core, &words_list, &http_client).await?;
                 }
+                else if notification.notification_type == NotificationType::Follow
+                {
+                    sora::follow(notification.to_owned(), &core, &http_client).await?;
+                }
+                else {()}
             },
             Event::Update(ref _status) => (),
             Event::Delete(ref _id) => (),
